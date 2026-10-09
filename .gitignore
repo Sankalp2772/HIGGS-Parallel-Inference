@@ -1,0 +1,32 @@
+# Build outputs
+*.o
+*.obj
+*.exe
+*.out
+*.dll
+*.so
+*.pdb
+*.ilk
+
+# Large/local data
+*.csv
+*.csv.gz
+*.gz
+HIGGS*
+
+# Model artifacts (keep weights out until provenance is documented)
+model_weights.txt
+*.pkl
+*.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
