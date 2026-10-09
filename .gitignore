@@ -8,10 +8,9 @@
 *.pdb
 *.ilk
 
-# Large/local data
-*.csv
-*.csv.gz
-*.gz
+# Large local HIGGS dataset files
+HIGGS*.csv
+HIGGS*.csv.gz
 HIGGS*
 
 # Model artifacts (keep weights out until provenance is documented)
