@@ -132,7 +132,7 @@ After downloading the official, headerless HIGGS CSV/GZ file into `data/HIGGS.cs
 
 ~~~bash
 # Compressed subset for Sequential, OpenMP, and MPI
-python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/data/HIGGS_1M.csv.gz
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
 
 # Plain CSV subset for CUDA
 python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
@@ -335,7 +335,7 @@ nvcc -O2 -std=c++17 -arch=compute_86 -code=sm_86 src\ai_cuda.cu -o ai_cuda.exe
 Run with a plain, decompressed CSV and the exported model file:
 
 ~~~bat
-ai_cuda.exe C:\path\to\HIGGS_1M.csv 1000000 C:\path\to\model_weights.txt
+ai_cuda.exe data\HIGGS_1M.csv 1000000 model_weights.txt
 ~~~
 
 Replace the paths with the actual local file locations. Unlike the CPU programs, this CUDA program expects plain CSV input rather than a gzip-compressed file.
@@ -522,7 +522,7 @@ This does **not** establish an unbiased machine-learning generalization score be
 
 ~~~bash
 python -m pip install -r requirements.txt
-python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/data/HIGGS_1M.csv.gz
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
 python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
 python scripts/train_model.py data/HIGGS.csv.gz --rows 100000
 python scripts/export_model.py
@@ -565,7 +565,7 @@ Open the Visual Studio x64 Native Tools / Developer Command Prompt. Confirm nvcc
 
 ~~~bat
 nvcc -O2 -std=c++17 -arch=compute_86 -code=sm_86 src\ai_cuda.cu -o ai_cuda.exe
-ai_cuda.exe C:\path\to\HIGGS_1M.csv 1000000 C:\path\to\model_weights.txt
+ai_cuda.exe data\HIGGS_1M.csv 1000000 model_weights.txt
 ~~~
 
 Replace the example paths with the real locations of the plain CSV and model file.
