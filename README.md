@@ -132,7 +132,7 @@ After downloading the official, headerless HIGGS CSV/GZ file into `data/HIGGS.cs
 
 ~~~bash
 # Compressed subset for Sequential, OpenMP, and MPI
-python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/data/HIGGS_1M.csv.gz
 
 # Plain CSV subset for CUDA
 python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
@@ -273,7 +273,7 @@ g++ -O2 src/ai_sequential.cpp -o ai_sequential -lz
 Run from a directory containing model_weights.txt and the compressed dataset:
 
 ~~~bash
-./ai_sequential HIGGS_1M.csv.gz 1000000
+./ai_sequential data/HIGGS_1M.csv.gz 1000000
 ~~~
 
 Change the requested row count to match an available dataset subset. The input filename must refer to a gzip-compressed CSV for this implementation.
@@ -293,7 +293,7 @@ g++ -O2 -fopenmp src/ai_openmp.cpp -o ai_openmp -lz
 Run using two threads:
 
 ~~~bash
-OMP_NUM_THREADS=2 ./ai_openmp HIGGS_1M.csv.gz 1000000
+OMP_NUM_THREADS=2 ./ai_openmp data/HIGGS_1M.csv.gz 1000000
 ~~~
 
 Configurations tested include 1, 2, 4, and 8 threads. More threads do not necessarily improve performance when the VM has only two virtual CPUs; oversubscription and runtime overhead can outweigh the additional concurrency.
@@ -313,7 +313,7 @@ mpic++ -O2 src/ai_mpi.cpp -o ai_mpi -lz
 Run on a configured MPI environment with a valid host file:
 
 ~~~bash
-mpirun -np 4 --hostfile hostfile ./ai_mpi HIGGS_1M.csv.gz 1000000
+mpirun -np 4 --hostfile hostfile ./ai_mpi data/HIGGS_1M.csv.gz 1000000
 ~~~
 
 The hostfile must list reachable cluster hosts using the names or addresses configured on the VMs. SSH access, MPI installation, executable availability, and the model file must be configured on the participating machines. Adapt the host file and launch command to the actual cluster configuration.
@@ -522,7 +522,7 @@ This does **not** establish an unbiased machine-learning generalization score be
 
 ~~~bash
 python -m pip install -r requirements.txt
-python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/data/HIGGS_1M.csv.gz
 python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
 python scripts/train_model.py data/HIGGS.csv.gz --rows 100000
 python scripts/export_model.py
@@ -552,9 +552,9 @@ The commands create executables in the current directory. The exported model_wei
 ### 16.4 Run CPU programs
 
 ~~~bash
-./ai_sequential HIGGS_1M.csv.gz 1000000
-OMP_NUM_THREADS=2 ./ai_openmp HIGGS_1M.csv.gz 1000000
-mpirun -np 4 --hostfile hostfile ./ai_mpi HIGGS_1M.csv.gz 1000000
+./ai_sequential data/HIGGS_1M.csv.gz 1000000
+OMP_NUM_THREADS=2 ./ai_openmp data/HIGGS_1M.csv.gz 1000000
+mpirun -np 4 --hostfile hostfile ./ai_mpi data/HIGGS_1M.csv.gz 1000000
 ~~~
 
 Ensure the dataset and model paths match each machine's setup. For MPI runs, configure the host file and make the executable and model available on the cluster nodes as required by the cluster setup.
