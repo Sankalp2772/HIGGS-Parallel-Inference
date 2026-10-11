@@ -588,5 +588,5 @@ The next step toward a rigorous comparative study is to align end-to-end timing 
 ## Author
 
 **Sankalp Prakash Patil**  
-B.Tech — Computer Science & Artificial Intelligence  
+B.E — Computer Science (Artificial Intelligence)  
 KLE Technological University
