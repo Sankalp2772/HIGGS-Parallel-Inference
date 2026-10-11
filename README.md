@@ -31,6 +31,7 @@ All four reported 718,779 correct predictions, an accuracy fraction of 0.718779,
 
 - [1. Objective](#1-objective)
 - [2. Problem Definition and Mathematical Formulation](#2-problem-definition-and-mathematical-formulation)
+  - [2.4 Reproducing Dataset and Model Artifacts](#24-reproducing-dataset-and-model-artifacts)
 - [3. Experimental Environment](#3-experimental-environment)
 - [4. Repository Structure](#4-repository-structure)
 - [5. System Architecture and Workflow](#5-system-architecture-and-workflow)
@@ -113,11 +114,40 @@ The predicted class is 1 when the model output is at least 0.5, and 0 otherwise.
 
 ### 2.3 Model training and model file
 
-The model used for the initial benchmarks was trained with scikit-learn using hidden layers of 32 and 16 neurons, Adam optimization, batch size 256, a maximum of 20 iterations, and random seed 42. The trained scaler parameters and neural-network weights are exported to a text file named **model_weights.txt**.
+The model used for the initial benchmarks was trained with scikit-learn using hidden layers of 32 and 16 neurons, Adam optimization, batch size 256, a maximum of 20 iterations, and random seed 42. The scaler parameters and neural-network weights are exported to **model_weights.txt**. The repository now includes `scripts/train_model.py` and `scripts/export_model.py` to recreate this artifact from the dataset.
 
-The model file is intentionally not committed at present. The large HIGGS data files are also excluded from version control. Obtain these assets locally and ensure the model file is available in the working directory expected by each program.
+The exported weight file is intentionally not committed: it is a generated local artifact. The large HIGGS data files and trained `joblib` bundle are also excluded from version control. See [Section 2.4](#24-reproducing-dataset-and-model-artifacts) for the complete workflow.
 
 **Important evaluation caveat:** The initial model was trained using the first 100,000 rows, while benchmark subsets were also created from the beginning of the dataset. Therefore, the reported prediction accuracy is a pipeline/correctness observation, not an unbiased held-out generalization estimate. A final machine-learning accuracy claim should be based on a clearly separated test set that was not used for training.
+
+### 2.4 Reproducing Dataset and Model Artifacts
+
+Install the Python dependencies:
+
+~~~bash
+python -m pip install -r requirements.txt
+~~~
+
+After downloading the official, headerless HIGGS CSV/GZ file into `data/HIGGS.csv.gz`, create subsets for both execution environments:
+
+~~~bash
+# Compressed subset for Sequential, OpenMP, and MPI
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
+
+# Plain CSV subset for CUDA
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
+~~~
+
+Train the MLP on the first 100,000 rows and export its parameters:
+
+~~~bash
+python scripts/train_model.py data/HIGGS.csv.gz --rows 100000
+python scripts/export_model.py
+~~~
+
+This creates `model/trained_model.joblib` and `model_weights.txt`. Both are generated artifacts ignored by Git. The four inference implementations expect the exported weight file in their working directory, unless a path is explicitly supported by the executable.
+
+The input-preparation script streams the source file, so it can produce a smaller subset without loading the full dataset into memory. The `.gz` output suffix creates compressed output; `.csv` creates plain text suitable for the current CUDA program.
 
 ## 3. Experimental Environment
 
@@ -154,14 +184,18 @@ HIGGS-Parallel-Inference/
 │   ├── ai_mpi.cpp              # MPI distributed-process inference
 │   └── ai_cuda.cu              # CUDA GPU inference
 ├── scripts/
-│   └── generate_graphs.py      # Generate derived summaries and plots
+│   ├── prepare_subset.py       # Stream a reproducible dataset subset
+│   ├── train_model.py          # Train the 28 -> 32 -> 16 -> 1 MLP
+│   ├── export_model.py         # Export weights for CPU and CUDA loaders
+│   └── generate_graphs.py      # Generate summaries and plots
+├── requirements.txt            # Python dependencies
 ├── model/
 │   └── README.md               # Model artifact and format notes
 ├── data/
-│   └── README.md               # Dataset acquisition notes
+│   └── README.md               # Dataset acquisition and preparation
 ├── results/
 │   ├── benchmark_results.csv   # Raw recorded measurements
-│   └── derived_summary.csv     # Grouped statistics, generated locally
+│   └── derived_summary.csv     # Grouped statistics generated from raw data
 ├── graphs/
 │   ├── cpu_execution_time_vs_rows.png
 │   ├── cuda_kernel_time_vs_rows.png
@@ -484,14 +518,26 @@ This does **not** establish an unbiased machine-learning generalization score be
 
 ## 16. Compilation and Execution Guide
 
-### 16.1 Install Ubuntu dependencies
+### 16.1 Install Python dependencies, prepare data, and recreate the model
+
+~~~bash
+python -m pip install -r requirements.txt
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv.gz
+python scripts/prepare_subset.py data/HIGGS.csv.gz --rows 1000000 --output data/HIGGS_1M.csv
+python scripts/train_model.py data/HIGGS.csv.gz --rows 100000
+python scripts/export_model.py
+~~~
+
+These commands assume the official HIGGS file is available at `data/HIGGS.csv.gz`. The prepared gzip subset is for the CPU/MPI programs; the plain CSV subset is for CUDA. The model exporter creates `model_weights.txt` in the repository root.
+
+### 16.2 Install Ubuntu dependencies
 
 ~~~bash
 sudo apt update
 sudo apt install -y build-essential zlib1g-dev openmpi-bin libopenmpi-dev
 ~~~
 
-### 16.2 Build CPU programs
+### 16.3 Build CPU programs
 
 Run from the repository root:
 
@@ -503,7 +549,7 @@ mpic++ -O2 src/ai_mpi.cpp -o ai_mpi -lz
 
 The commands create executables in the current directory. The exported model_weights.txt must be present in the working directory used for execution.
 
-### 16.3 Run CPU programs
+### 16.4 Run CPU programs
 
 ~~~bash
 ./ai_sequential HIGGS_1M.csv.gz 1000000
@@ -513,7 +559,7 @@ mpirun -np 4 --hostfile hostfile ./ai_mpi HIGGS_1M.csv.gz 1000000
 
 Ensure the dataset and model paths match each machine's setup. For MPI runs, configure the host file and make the executable and model available on the cluster nodes as required by the cluster setup.
 
-### 16.4 Build and run CUDA on Windows
+### 16.5 Build and run CUDA on Windows
 
 Open the Visual Studio x64 Native Tools / Developer Command Prompt. Confirm nvcc and cl.exe are available, then compile for the tested SM 8.6 GPU target.
 
@@ -530,7 +576,7 @@ Replace the example paths with the real locations of the plain CSV and model fil
 2. **Different timing scopes:** MPI excludes initial data distribution; CUDA excludes parsing and transfers. An end-to-end benchmark should measure setup, transfer/distribution, inference, and output stages separately.
 3. **Limited repeats:** Several dataset-size/configuration pairs have only one timing sample. Repeat all configurations and report variation before drawing strong conclusions.
 4. **Model evaluation split:** Inference subsets may overlap with model-training data. Create an explicit held-out test set and do not use training rows to report generalization accuracy.
-5. **Reproducible model training:** Check in and document the training/export workflow after the scripts, package versions, and model-generation process are finalized.
+5. **Reproducible model training:** The training, export, and dataset-preparation scripts are now included. For stronger reproducibility, pin the exact dependency versions used for the final run and record source-dataset checksums.
 6. **Input reproducibility:** Dataset and model artifacts are local. Record the exact subset selection, data source, and checksums for each benchmark input.
 7. **End-to-end GPU comparison:** Record host-to-device transfer and kernel timing separately, as well as total application latency.
 8. **Large-scale MPI evaluation:** Repeat the same row counts with consistent process placements and include communication costs when measuring the complete distributed pipeline.
