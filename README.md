@@ -2,12 +2,12 @@
 ## Sequential vs OpenMP vs MPI vs CUDA
 
 <p align="center">
-  <strong>Benchmarking a neural-network inference workload across four parallel-computing paradigms</strong><br>
-  <a href="https://img.shields.io/badge/C%2B%2B-CPU%20Inference-00599C?logo=cplusplus"><img src="https://img.shields.io/badge/C%2B%2B-CPU%20Inference-00599C?logo=cplusplus" alt="C++ CPU inference"></a>
-  <a href="https://img.shields.io/badge/OpenMP-Shared%20Memory-3973AC"><img src="https://img.shields.io/badge/OpenMP-Shared%20Memory-3973AC" alt="OpenMP shared-memory parallelism"></a>
-  <a href="https://img.shields.io/badge/MPI-Distributed%20Memory-6A5ACD"><img src="https://img.shields.io/badge/MPI-Distributed%20Memory-6A5ACD" alt="MPI distributed-memory parallelism"></a>
-  <a href="https://img.shields.io/badge/NVIDIA%20CUDA-GPU%20Inference-76B900?logo=nvidia"><img src="https://img.shields.io/badge/NVIDIA%20CUDA-GPU%20Inference-76B900?logo=nvidia" alt="NVIDIA CUDA"></a>
-  <a href="https://img.shields.io/badge/Python-Benchmark%20Plots-3776AB?logo=python"><img src="https://img.shields.io/badge/Python-Benchmark%20Plots-3776AB?logo=python" alt="Python benchmark plotting"></a>
+  <strong>Benchmarking neural-network inference across four parallel-computing paradigms</strong><br><br>
+  <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C%2B%2B-CPU%20Inference-00599C?logo=cplusplus&logoColor=white" alt="C++ CPU inference"></a>
+  <a href="https://www.openmp.org/"><img src="https://img.shields.io/badge/OpenMP-Shared%20Memory-3973AC" alt="OpenMP shared-memory parallelism"></a>
+  <a href="https://www.open-mpi.org/"><img src="https://img.shields.io/badge/MPI-Distributed%20Memory-6A5ACD" alt="MPI distributed-memory parallelism"></a>
+  <a href="https://developer.nvidia.com/cuda-zone"><img src="https://img.shields.io/badge/NVIDIA%20CUDA-GPU%20Inference-76B900?logo=nvidia&logoColor=white" alt="NVIDIA CUDA"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-Benchmark%20Plots-3776AB?logo=python&logoColor=white" alt="Python benchmark plotting"></a>
 </p>
 
 This project evaluates the performance of one neural-network inference workload implemented with four approaches: sequential CPU execution, shared-memory parallelism with OpenMP, distributed-memory processing with MPI, and GPU execution with CUDA.
