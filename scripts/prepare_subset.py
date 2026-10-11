@@ -56,9 +56,16 @@ def main() -> int:
                 for line_number, line in enumerate(source, start=1):
                     if not line.strip():
                         continue
-                    if line_number == 1:
+                    if written == 0:
                         fields = line.rstrip("\r\n").split(",")
-                        if len(fields) != 29 or fields[0].strip() not in {"0", "1"}:
+                        try:
+                            label = float(fields[0].strip())
+                        except (IndexError, ValueError) as exc:
+                            raise SystemExit(
+                                "Unexpected first row. Expected a headerless HIGGS CSV "
+                                "with 29 columns: binary label + 28 features."
+                            ) from exc
+                        if len(fields) != 29 or label not in (0.0, 1.0):
                             raise SystemExit(
                                 "Unexpected first row. Expected a headerless HIGGS CSV "
                                 "with 29 columns: binary label + 28 features."
