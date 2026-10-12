@@ -631,8 +631,3 @@ The next step toward a rigorous comparative study is to align end-to-end timing 
 | Raw measurement records | 41 |
 | Derived grouped summary records | 29 |
 
-## Author
-
-**Sankalp Prakash Patil**  
-B.E — Computer Science (Artificial Intelligence)  
-KLE Technological University
